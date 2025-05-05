@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/Dartmouth-OpenAV/microservice-framework/framework"
 )
-
+ 
 	//deviceStates[socketKey]["videomute" + output] = `"false"`  // unmuted
 
 func setFrameworkGlobals() {
