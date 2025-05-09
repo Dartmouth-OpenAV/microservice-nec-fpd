@@ -1000,10 +1000,12 @@ func setAudioMute(socketKey string, outputNumber string, state string) (string, 
 	var result string
 
 	// Check for unmuted response
-	if rawReply == "30303030384430303030303230303032" {
+	if rawReply == "30303030384430303030303230303032" ||
+		rawReply == "30303030384430313030303230303032" {
 		result = `"false"`
 		// Check for muted response
-	} else if rawReply == "30303030384430303030303230303031" {
+	} else if rawReply == "30303030384430303030303230303031" ||
+		rawReply == "30303030384430313030303230303031" {
 		result = `"true"`
 	} else {
 		errMsg := function + " - vafewaf unknown mute response: " + rawReply
