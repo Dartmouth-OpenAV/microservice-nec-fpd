@@ -7,11 +7,14 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	/* "encoding/json"
 	"time" */
 	"github.com/Dartmouth-OpenAV/microservice-framework/framework"
 )
+
+const powerOnFailSleep = 1  // Seconds
 
 // Protocol for our models is documented at
 // https://assets.sharpnecdisplays.us/documents/usermanuals/external_control_e705-805.pdf
@@ -116,7 +119,7 @@ func getPower(socketKey string) (string, error) {
 }
 
 func setVideoRoute(socketKey string, outputNumber string, inputNumber string) (string, error) {
-	function := "setInput"
+	function := "setVideoRoute"
 	var command string
 	var result string
 
@@ -165,7 +168,11 @@ func setVideoRoute(socketKey string, outputNumber string, inputNumber string) (s
 	// One could check more thoroughly by masking bytes 10 through 13 in the reply.
 	// For now, we're simply adding strings as we encounter new responses.
 	// This effect will happen in other set operations.
-	if rawReply == "30303030363030303030383030303131" ||
+	if rawReply == "4245" {   // Tried too soon after power on, I wish the device would just do it anyway
+		framework.Log(function + " - asfnnlkj device wasn't ready; retrying")
+		time.Sleep(time.Duration(powerOnFailSleep) * time.Millisecond)
+		return setVideoRoute(socketKey, outputNumber, inputNumber) // Won't recur indefinitely, because the device will stop returning this code
+	} else if rawReply == "30303030363030303030383030303131" ||
 		rawReply == "30303030363030303030383230303131" ||
 		rawReply == "30303030363030303030383830303131" ||
 		rawReply == "30303030363030313030383030303131" {
@@ -174,7 +181,8 @@ func setVideoRoute(socketKey string, outputNumber string, inputNumber string) (s
 		result = `"1"`
 	} else if rawReply == "30303030363030303030383030303132" ||
 		rawReply == "30303030363030303030383830303132" ||
-		rawReply == "30303030363030303030383230303132" {
+		rawReply == "30303030363030303030383230303132" ||
+		rawReply == "30303030363030313030383030303132" {
 		result = `"2"`
 	} else {
 		errMsg := function + " - vv4ds unknown response: " + rawReply
@@ -307,11 +315,11 @@ func ExtractBody(message string) string {
 		body = body[:len(body)-2]
 		if bytesPair == "03" {
 			nextBytesPair := body[len(body)-2:]
-			if (nextBytesPair != "03") {  // Check to see if the checksum character was "03" which means there's another one
+			if nextBytesPair != "03" { // Check to see if the checksum character was "03" which means there's another one
 				break
 			}
 		}
-		if len(body) < 6 {  // No message body is this short
+		if len(body) < 6 { // No message body is this short
 			break
 		}
 	}
