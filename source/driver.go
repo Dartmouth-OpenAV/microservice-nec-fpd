@@ -306,9 +306,12 @@ func ExtractBody(message string) string {
 		bytesPair := body[len(body)-2:]
 		body = body[:len(body)-2]
 		if bytesPair == "03" {
-			break
+			nextBytesPair := body[len(body)-2:]
+			if (nextBytesPair != "03") {  // Check to see if the checksum character was "03" which means there's another one
+				break
+			}
 		}
-		if len(body) < 2 {
+		if len(body) < 6 {  // No message body is this short
 			break
 		}
 	}
