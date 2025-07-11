@@ -14,7 +14,7 @@ import (
 	"github.com/Dartmouth-OpenAV/microservice-framework/framework"
 )
 
-const powerOnFailSleep = 1  // Seconds
+const powerOnFailSleep = 1 // Seconds
 
 // Protocol for our models is documented at
 // https://assets.sharpnecdisplays.us/documents/usermanuals/external_control_e705-805.pdf
@@ -168,18 +168,18 @@ func setVideoRoute(socketKey string, outputNumber string, inputNumber string) (s
 	// One could check more thoroughly by masking bytes 10 through 13 in the reply.
 	// For now, we're simply adding strings as we encounter new responses.
 	// This effect will happen in other set operations.
-	if rawReply == "4245" {   // Tried too soon after power on, I wish the device would just do it anyway
+	if rawReply == "4245" { // Tried too soon after power on, I wish the device would just do it anyway
 		framework.Log(function + " - asfnnlkj device wasn't ready; retrying")
 		time.Sleep(time.Duration(powerOnFailSleep) * time.Millisecond)
 		return setVideoRoute(socketKey, outputNumber, inputNumber) // Won't recur indefinitely, because the device will stop returning this code
 	} else if rawReply == "30303030363030303030383030303131" ||
+		rawReply == "30303030363030313030383230303131" ||
 		rawReply == "30303030363030303030383230303131" ||
 		rawReply == "30303030363030303030383830303131" ||
 		rawReply == "30303030363030313030383030303131" {
-		//	rawReply == "303030303630303030303832303031" ||
-		//	rawReply == "303030303630303030303830303031" {
 		result = `"1"`
 	} else if rawReply == "30303030363030303030383030303132" ||
+		rawReply == "30303030363030313030383230303132" ||
 		rawReply == "30303030363030303030383830303132" ||
 		rawReply == "30303030363030303030383230303132" ||
 		rawReply == "30303030363030313030383030303132" {
@@ -233,27 +233,19 @@ func getVideoRoute(socketKey string, outputNumber string) (string, error) {
 	var result string
 
 	switch rawReply {
-	/* case "303030303630303030303830303031310309":
+
+	/* case "30303030363030303030383030303131":
 		result = `"1"`
-	case "30303030363030303030383230303131030b":
+	case "30303030363030303030383830303131":
 		result = `"1"`
-	case "303030303630303030303838303031310303":
+	case "30303030363030303030383030303132":
+		result = `"2"`
+	case "30303030363030303030383230303132":
+		result = `"2"`
+	case "30303030363030303030383830303132":
+		result = `"2"` */ // orig ^
+	case "30303030363030303030383230303131":
 		result = `"1"`
-	case "30303030363030303030383030303132030a":
-		result = `"2"`
-	case "303030303630303030303832303031320308":
-		//01 30 30 41 44 31 32 02 30 30 30 30 36 30 30 30 30 30 38 32 30 30 31 32 03 08
-		result = `"2"`
-	case "303030303630303030303838303031320300":
-		result = `"2"`
-	case "3030303036303030303038303030313103":
-		result = `"2"` */
-	/* 303030303630303030303830303031
-	303030303630303030303830303031
-	303030303630303030303830303031
-	303030303630303030303830303031
-	303030303630303030303830303031
-	30303032324530303030304130303034 from NEC tool */
 	case "30303030363030303030383030303131":
 		result = `"1"`
 	case "30303030363030303030383830303131":
