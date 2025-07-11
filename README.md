@@ -1,16 +1,7 @@
-<<<<<<< HEAD
 # microservice-nec-fpd
 OpenAV NEC FPD microservice
 =======
 # openav microservice sony fpd
 
-OpenAV microservice for the Sony Bravia displays.  Uses the microservice framework and the Bravia REST API.
+OpenAV microservice for the NEC displays.  Uses the microservice framework and NECs network control protocol.  Adding models to this is complex and labor-intensive.
 
-Sony flat panel displays are high-quality professional monitors widely used in various applications like corporate environments, broadcast, education, and digital signage. Sony offers several types of flat panel displays, including BRAVIA Professional Displays and specialized monitors for industrial or medical use.
-
-[Sony Flat Panel Display](https://pro.sony/ue_US/products/pro-displays/fw-55bz40l)
-
-![](https://github.com/Dartmouth-OpenAV/microservice-sony-fpd/blob/main/front.png)
-
-![](https://github.com/Dartmouth-OpenAV/microservice-sony-fpd/blob/main/rear.png)
->>>>>>> bca3e6a (Initial commit.)
