@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
+    "encoding/hex"
 	/* "encoding/json"
 	"time" */
 	"github.com/Dartmouth-OpenAV/microservice-framework/framework"
@@ -1017,4 +1017,63 @@ func setAudioMute(socketKey string, outputNumber string, state string) (string, 
 	}
 
 	return result, nil
+}
+
+func getModel(socketKey string) (string, error) {
+	function := "getModel"
+
+	framework.Log(function + " - getting model for: " + socketKey)
+
+	command := HexToBin("01304130413036024332313703700d")
+
+	if !framework.WriteLineToSocket(socketKey, command) {
+		// the socket connection may have died, so we'll try once to reopen it
+		errMsg := function + " - awefavd5 error writing to " + socketKey + " closing and trying again"
+		framework.AddToErrors(socketKey, errMsg)
+		framework.CloseSocketConnection(socketKey)
+
+		if !framework.WriteLineToSocket(socketKey, command) {
+			errMsg := function + " - vfvawe5 still getting an error writing to " + socketKey + " giving up"
+			framework.AddToErrors(socketKey, errMsg)
+			framework.CloseSocketConnection(socketKey)
+			return errMsg, errors.New("get model error")
+		}
+	}
+
+	// get server response
+	response := framework.ReadLineFromSocket(socketKey)
+	rawReply := ExtractBody(BinToHex(response))
+
+	framework.Log(function + " - raw hex response is: " + rawReply)
+
+	var result string
+    preamble := "43333137"
+    hexReply1 := strings.TrimPrefix(rawReply, preamble)
+    bytesReply1, err1 := hex.DecodeString(hexReply1)
+    if err1 != nil {
+        errMsg := function + " - asfafee5 unknown model response: " + rawReply
+        framework.AddToErrors(socketKey, errMsg)
+        return errMsg, errors.New("unknown response error")
+    }
+    hexReply2 := string(bytesReply1)
+    trimReply := strings.TrimRight(hexReply2, "00")
+    bytesReply2, err2 := hex.DecodeString(trimReply)
+    if err2 != nil {
+        errMsg := function + " - asfafee4 unknown model response: " + rawReply
+        framework.AddToErrors(socketKey, errMsg)
+        return errMsg, errors.New("unknown response error")
+    }
+    textReply := string(bytesReply2)
+    result = `"` + textReply + `"`
+
+	return result, nil
+}
+
+func healthCheck(socketKey string) (string, error) {
+	_, err := getModel(socketKey)
+	returnStr := "true"
+	if err != nil && strings.Contains(err.Error(), "get model error") {
+		returnStr = "false"
+	}
+	return `"` + returnStr + `"`, nil
 }
